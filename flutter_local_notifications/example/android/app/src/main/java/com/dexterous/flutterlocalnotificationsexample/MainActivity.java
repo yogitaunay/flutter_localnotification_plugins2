@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
+    
     private static String resourceToUriString(Context context, int resId) {
         return
                 ContentResolver.SCHEME_ANDROID_RESOURCE
@@ -25,15 +26,22 @@ public class MainActivity extends FlutterActivity {
     @Override
     public void configureFlutterEngine(FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
+        setShowWhenLocked(true);
+        setTurnScreenOn(true);
         new MethodChannel(flutterEngine.getDartExecutor(), "crossingthestreams.io/resourceResolver").setMethodCallHandler(
                 (call, result) -> {
                     if ("drawableToUri".equals(call.method)) {
                         int resourceId = MainActivity.this.getResources().getIdentifier((String) call.arguments, "drawable", MainActivity.this.getPackageName());
                         result.success(resourceToUriString(MainActivity.this.getApplicationContext(), resourceId));
+                        setShowWhenLocked(true);
+                        setTurnScreenOn(true);
                     }
                     if("getAlarmUri".equals(call.method)) {
                         result.success(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString());
+                        setShowWhenLocked(true);
+                        setTurnScreenOn(true);
                     }
+                    
                 });
     }
 }

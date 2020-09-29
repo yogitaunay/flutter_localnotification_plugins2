@@ -6,10 +6,13 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_android/android_app.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:flutter_local_notifications_example/wakeup.dart';
+
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -98,6 +101,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  
+  void showDiag() {
+
+  showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Haloo'),
+        content: Text('Isi dataaa'),
+      ),
+  );
+  }
   final MethodChannel platform =
       MethodChannel('crossingthestreams.io/resourceResolver');
   @override
@@ -244,7 +258,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   PaddedRaisedButton(
                     buttonText:
-                        'Show plain notification as public on every lockscreen [Android]',
+                        'Showwwwww plain notification as public on every lockscreen [Android]',
                     onPressed: () async {
                       await _showPublicNotification();
                     },
@@ -418,6 +432,12 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   PaddedRaisedButton(
+                    buttonText: 'Show notification with Sound khusus',
+                    onPressed: () async {
+                      await _showNotificationWithSound();
+                    },
+                  ),
+                  PaddedRaisedButton(
                     buttonText: 'Create notification channel [Android]',
                     onPressed: () async {
                       await _createNotificationChannel();
@@ -448,6 +468,27 @@ class _HomePageState extends State<HomePage> {
     await flutterLocalNotificationsPlugin.show(
         0, 'plain title', 'plain body', platformChannelSpecifics,
         payload: 'item x');
+  }
+
+  Future<void> _showNotificationWithSound() async {
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'your channel id', 'your channel name', 'your channel description',
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound('begentle'),
+        importance: Importance.Max,
+        priority: Priority.High
+    );
+    var iOSPlatformChannelSpecifics =
+    IOSNotificationDetails(sound: 'slow_spring_board.aiff');
+    var platformChannelSpecifics = NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'New Post',
+      'How to Show Notification in Flutter',
+      platformChannelSpecifics,
+      payload: 'Custom_Sound',
+    );
   }
 
   Future<void> _showNotificationWithNoBody() async {
@@ -591,9 +632,16 @@ class _HomePageState extends State<HomePage> {
         'big text channel id',
         'big text channel name',
         'big text channel description',
-        styleInformation: bigPictureStyleInformation);
+        styleInformation: bigPictureStyleInformation,
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound('begentle'),
+        importance: Importance.Max,
+        priority: Priority.High);
+    var iOSPlatformChannelSpecifics =
+    IOSNotificationDetails(sound: 'slow_spring_board.aiff');
     var platformChannelSpecifics =
-        NotificationDetails(androidPlatformChannelSpecifics, null);
+        NotificationDetails(androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+
     await flutterLocalNotificationsPlugin.show(
         0, 'big text title', 'silent body', platformChannelSpecifics);
   }
@@ -956,18 +1004,34 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _showPublicNotification() async {
+    var scheduledNotificationDateTime =
+        DateTime.now().add(Duration(seconds: 5));
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         'your channel id', 'your channel name', 'your channel description',
         importance: Importance.Max,
         priority: Priority.High,
         ticker: 'ticker',
-        visibility: NotificationVisibility.Public);
+        visibility: NotificationVisibility.Public,
+        styleInformation: BigPictureStyleInformation(
+          DrawableResourceAndroidBitmap('app_icon'),
+          largeIcon: DrawableResourceAndroidBitmap('app_icon'),
+          contentTitle: 'Halooo',
+          summaryText: 'Yihaaaa'
+        )
+        );
     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(0, 'public notification title',
-        'public notification body', platformChannelSpecifics,
-        payload: 'item x');
+    // await flutterLocalNotificationsPlugin.show(0, 'public notification title',
+    //     'public notification body', platformChannelSpecifics,
+    //     payload: 'item x');
+    
+    await flutterLocalNotificationsPlugin.schedule(
+        0,
+        'public title',
+        'publicccc body',
+        scheduledNotificationDateTime,
+        platformChannelSpecifics);
   }
 
   Future<void> _showNotificationWithIconBadge() async {
